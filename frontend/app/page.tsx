@@ -2,6 +2,14 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
+import {
+  Bot,
+  Rocket,
+  CheckCircle2,
+  Clock3,
+  Loader2
+} from "lucide-react";
 
 const API_URL = "http://127.0.0.1:8000";
 
@@ -16,7 +24,9 @@ export default function Home() {
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [goal, setGoal] = useState(
+    "Build EV Fleet Dashboard"
+  );
 
   const fetchTasks = async () => {
 
@@ -28,10 +38,9 @@ export default function Home() {
 
       setTasks(response.data.tasks || []);
 
-    } catch (err) {
+    } catch (error) {
 
-      console.error(err);
-      setError("Failed to fetch tasks");
+      console.error(error);
 
     }
   };
@@ -41,18 +50,17 @@ export default function Home() {
     try {
 
       setLoading(true);
-      setError("");
 
-      await axios.post(`${API_URL}/start-project`, {
-        goal: "Build EV Fleet Dashboard"
-      });
+      await axios.post(
+        `${API_URL}/start-project`,
+        { goal }
+      );
 
       await fetchTasks();
 
-    } catch (err) {
+    } catch (error) {
 
-      console.error(err);
-      setError("Failed to start workflow");
+      console.error(error);
 
     } finally {
 
@@ -65,74 +73,147 @@ export default function Home() {
     fetchTasks();
   }, []);
 
+  const getStatusIcon = (status: string) => {
+
+    if (status === "Completed") {
+      return <CheckCircle2 className="text-green-400" />;
+    }
+
+    if (status === "In Progress") {
+      return <Loader2 className="text-yellow-400 animate-spin" />;
+    }
+
+    return <Clock3 className="text-gray-400" />;
+  };
+
   return (
-    <main className="min-h-screen bg-black text-white p-10">
+    <main className="min-h-screen bg-gradient-to-br from-black via-gray-950 to-blue-950 text-white p-10">
 
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-7xl mx-auto">
 
-        <h1 className="text-5xl font-bold mb-4">
-          SynapseOS
-        </h1>
-
-        <p className="text-gray-400 mb-8 text-lg">
-          AI Multi-Agent Workforce Operating System
-        </p>
-
-        <button
-          onClick={startWorkflow}
-          disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 transition-all px-6 py-3 rounded-xl font-semibold"
+        <motion.div
+          initial={{ opacity: 0, y: -40 }}
+          animate={{ opacity: 1, y: 0 }}
         >
-          {loading ? "Running Workflow..." : "Start Workflow"}
-        </button>
 
-        {error && (
-          <div className="mt-6 border border-red-500 bg-red-500/10 text-red-400 p-4 rounded-xl">
-            {error}
+          <div className="flex items-center gap-4 mb-6">
+
+            <Rocket className="w-12 h-12 text-blue-400" />
+
+            <h1 className="text-6xl font-bold">
+              SynapseOS
+            </h1>
+
           </div>
-        )}
 
-        <div className="mt-10 grid gap-5">
+          <p className="text-gray-400 text-xl mb-10">
+            AI Multi-Agent Workforce Operating System
+          </p>
 
-          {tasks.length === 0 ? (
+        </motion.div>
 
-            <div className="text-gray-500 text-lg">
-              No tasks available
-            </div>
+        <div className="bg-gray-900/50 border border-gray-800 rounded-3xl p-8 mb-10 backdrop-blur-md">
 
-          ) : (
+          <h2 className="text-2xl font-semibold mb-5">
+            Launch New AI Workflow
+          </h2>
 
-            tasks.map((task) => (
+          <div className="flex flex-col md:flex-row gap-4">
 
-              <div
-                key={task.id}
-                className="border border-gray-700 bg-gray-900 rounded-2xl p-5 shadow-lg"
-              >
+            <input
+              value={goal}
+              onChange={(e) => setGoal(e.target.value)}
+              className="flex-1 bg-black border border-gray-700 rounded-2xl px-5 py-4 text-white outline-none"
+              placeholder="Enter project goal..."
+            />
 
-                <div className="flex items-center justify-between">
+            <button
+              onClick={startWorkflow}
+              disabled={loading}
+              className="bg-blue-600 hover:bg-blue-700 transition-all px-8 py-4 rounded-2xl font-semibold"
+            >
+              {loading
+                ? "Launching Agents..."
+                : "Start Workflow"}
+            </button>
 
-                  <h2 className="text-2xl font-semibold">
-                    {task.title}
-                  </h2>
+          </div>
 
-                  <span className="text-green-400 font-medium">
+        </div>
+
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+          {tasks.map((task, index) => (
+
+            <motion.div
+              key={task.id}
+              initial={{
+                opacity: 0,
+                y: 30
+              }}
+              animate={{
+                opacity: 1,
+                y: 0
+              }}
+              transition={{
+                delay: index * 0.1
+              }}
+              className="bg-gray-900/70 border border-gray-800 rounded-3xl p-6 shadow-2xl backdrop-blur-md"
+            >
+
+              <div className="flex justify-between items-center mb-5">
+
+                <Bot className="text-blue-400 w-10 h-10" />
+
+                {getStatusIcon(task.status)}
+
+              </div>
+
+              <h2 className="text-2xl font-bold mb-3">
+                {task.title}
+              </h2>
+
+              <p className="text-gray-400 mb-2">
+                Assigned Agent
+              </p>
+
+              <p className="text-lg font-medium mb-4">
+                {task.assigned_agent}
+              </p>
+
+              <div className="mt-4">
+
+                <div className="flex justify-between mb-2">
+
+                  <span className="text-gray-400">
+                    Status
+                  </span>
+
+                  <span className="text-blue-400">
                     {task.status}
                   </span>
 
                 </div>
 
-                <p className="text-gray-400 mt-3">
-                  Assigned Agent:
-                  <span className="text-white ml-2">
-                    {task.assigned_agent}
-                  </span>
-                </p>
+                <div className="w-full bg-gray-800 rounded-full h-3">
+
+                  <div
+                    className={`h-3 rounded-full ${
+                      task.status === "Completed"
+                        ? "bg-green-500 w-full"
+                        : task.status === "In Progress"
+                        ? "bg-yellow-400 w-2/3"
+                        : "bg-gray-500 w-1/4"
+                    }`}
+                  />
+
+                </div>
 
               </div>
 
-            ))
+            </motion.div>
 
-          )}
+          ))}
 
         </div>
 
