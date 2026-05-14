@@ -1,6 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from openai import OpenAI
+from dotenv import load_dotenv
+import os
+import json
+
+load_dotenv()
+
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY")
+)
 
 app = FastAPI()
 
@@ -20,7 +30,7 @@ class ProjectRequest(BaseModel):
 @app.get("/")
 def home():
     return {
-        "message": "SynapseOS Backend Running"
+        "message": "SynapseOS AI Backend Running"
     }
 
 @app.post("/start-project")
@@ -28,29 +38,68 @@ def start_project(request: ProjectRequest):
 
     global tasks_db
 
-    tasks_db = [
-        {
-            "id": 1,
-            "title": "Analyze Requirements",
-            "assigned_agent": "Planner Agent",
-            "status": "Completed"
-        },
-        {
-            "id": 2,
-            "title": "Generate UI Components",
-            "assigned_agent": "Frontend Agent",
-            "status": "In Progress"
-        },
-        {
-            "id": 3,
-            "title": "Deploy Backend APIs",
-            "assigned_agent": "DevOps Agent",
-            "status": "Pending"
-        }
-    ]
+    prompt = f"""
+    Create software project execution tasks for:
+    {request.goal}
+
+    Return JSON array only.
+    """
+
+    try:
+
+        response = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        )
+
+        content = response.choices[0].message.content
+
+        tasks_db = json.loads(content)
+
+    except Exception as e:
+
+        print("OpenAI Error:", e)
+
+        tasks_db = [
+            {
+                "id": 1,
+                "title": "Analyze Project Requirements",
+                "assigned_agent": "Planner Agent",
+                "status": "Completed"
+            },
+            {
+                "id": 2,
+                "title": "Design Frontend Dashboard",
+                "assigned_agent": "Frontend Agent",
+                "status": "In Progress"
+            },
+            {
+                "id": 3,
+                "title": "Develop Backend APIs",
+                "assigned_agent": "Backend Agent",
+                "status": "Pending"
+            },
+            {
+                "id": 4,
+                "title": "Deploy Infrastructure",
+                "assigned_agent": "DevOps Agent",
+                "status": "Pending"
+            },
+            {
+                "id": 5,
+                "title": "Run AI Validation Testing",
+                "assigned_agent": "QA Agent",
+                "status": "Pending"
+            }
+        ]
 
     return {
-        "message": f"Project started: {request.goal}",
+        "message": f"Workflow Started: {request.goal}",
         "tasks": tasks_db
     }
 

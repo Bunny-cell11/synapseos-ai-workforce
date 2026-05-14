@@ -25,7 +25,7 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [goal, setGoal] = useState(
-    "Build EV Fleet Dashboard"
+    "Build AI-powered EV Fleet Dashboard"
   );
 
   const fetchTasks = async () => {
@@ -112,7 +112,7 @@ export default function Home() {
 
         </motion.div>
 
-        <div className="bg-gray-900/50 border border-gray-800 rounded-3xl p-8 mb-10 backdrop-blur-md">
+        <div className="bg-gray-900/50 border border-gray-800 rounded-3xl p-8 mb-10">
 
           <h2 className="text-2xl font-semibold mb-5">
             Launch New AI Workflow
@@ -123,17 +123,16 @@ export default function Home() {
             <input
               value={goal}
               onChange={(e) => setGoal(e.target.value)}
-              className="flex-1 bg-black border border-gray-700 rounded-2xl px-5 py-4 text-white outline-none"
-              placeholder="Enter project goal..."
+              className="flex-1 bg-black border border-gray-700 rounded-2xl px-5 py-4"
             />
 
             <button
               onClick={startWorkflow}
               disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 transition-all px-8 py-4 rounded-2xl font-semibold"
+              className="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-2xl"
             >
               {loading
-                ? "Launching Agents..."
+                ? "Launching..."
                 : "Start Workflow"}
             </button>
 
@@ -158,7 +157,7 @@ export default function Home() {
               transition={{
                 delay: index * 0.1
               }}
-              className="bg-gray-900/70 border border-gray-800 rounded-3xl p-6 shadow-2xl backdrop-blur-md"
+              className="bg-gray-900 border border-gray-800 rounded-3xl p-6"
             >
 
               <div className="flex justify-between items-center mb-5">
@@ -173,43 +172,13 @@ export default function Home() {
                 {task.title}
               </h2>
 
-              <p className="text-gray-400 mb-2">
-                Assigned Agent
-              </p>
-
-              <p className="text-lg font-medium mb-4">
+              <p className="text-gray-400">
                 {task.assigned_agent}
               </p>
 
-              <div className="mt-4">
-
-                <div className="flex justify-between mb-2">
-
-                  <span className="text-gray-400">
-                    Status
-                  </span>
-
-                  <span className="text-blue-400">
-                    {task.status}
-                  </span>
-
-                </div>
-
-                <div className="w-full bg-gray-800 rounded-full h-3">
-
-                  <div
-                    className={`h-3 rounded-full ${
-                      task.status === "Completed"
-                        ? "bg-green-500 w-full"
-                        : task.status === "In Progress"
-                        ? "bg-yellow-400 w-2/3"
-                        : "bg-gray-500 w-1/4"
-                    }`}
-                  />
-
-                </div>
-
-              </div>
+              <p className="mt-3 text-blue-400">
+                {task.status}
+              </p>
 
             </motion.div>
 
