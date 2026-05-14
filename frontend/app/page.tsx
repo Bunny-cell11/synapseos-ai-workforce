@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_URL =
-  "https://synapseos-backend.greenground-f7cf9187.centralindia.azurecontainerapps.io";
+const API_URL = "http://127.0.0.1:8000";
 
 interface Task {
   id: number;
@@ -18,6 +17,24 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const fetchTasks = async () => {
+
+    try {
+
+      const response = await axios.get(
+        `${API_URL}/tasks`
+      );
+
+      setTasks(response.data.tasks || []);
+
+    } catch (err) {
+
+      console.error(err);
+      setError("Failed to fetch tasks");
+
+    }
+  };
 
   const startWorkflow = async () => {
 
@@ -40,24 +57,6 @@ export default function Home() {
     } finally {
 
       setLoading(false);
-
-    }
-  };
-
-  const fetchTasks = async () => {
-
-    try {
-
-      const response = await axios.get(
-        `${API_URL}/tasks`
-      );
-
-      setTasks(response.data.tasks || []);
-
-    } catch (err) {
-
-      console.error(err);
-      setError("Failed to fetch tasks");
 
     }
   };
@@ -88,7 +87,7 @@ export default function Home() {
         </button>
 
         {error && (
-          <div className="mt-6 bg-red-500/20 border border-red-500 text-red-400 p-4 rounded-xl">
+          <div className="mt-6 border border-red-500 bg-red-500/10 text-red-400 p-4 rounded-xl">
             {error}
           </div>
         )}
@@ -97,7 +96,7 @@ export default function Home() {
 
           {tasks.length === 0 ? (
 
-            <div className="text-gray-500">
+            <div className="text-gray-500 text-lg">
               No tasks available
             </div>
 
@@ -107,7 +106,7 @@ export default function Home() {
 
               <div
                 key={task.id}
-                className="border border-gray-700 bg-gray-900 p-5 rounded-2xl shadow-lg"
+                className="border border-gray-700 bg-gray-900 rounded-2xl p-5 shadow-lg"
               >
 
                 <div className="flex items-center justify-between">
@@ -122,7 +121,7 @@ export default function Home() {
 
                 </div>
 
-                <p className="text-gray-400 mt-2">
+                <p className="text-gray-400 mt-3">
                   Assigned Agent:
                   <span className="text-white ml-2">
                     {task.assigned_agent}
