@@ -11,7 +11,7 @@ import {
   Loader2
 } from "lucide-react";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://synapseos-backend-4v9x.onrender.com";
 
 interface Task {
   id: number;
