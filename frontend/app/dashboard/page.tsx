@@ -1,21 +1,26 @@
-import AnalyticsChart from "@/components/AnalyticsChart";
-import FileUpload from "@/components/FileUpload";
-import SystemMonitoring from "@/components/SystemMonitoring";
-import WorkspaceSwitcher from "@/components/WorkspaceSwitcher";
-
 export default function DashboardPage() {
-  return (
-    <div className="p-6 space-y-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold">SynapseOS Dashboard</h1>
 
-      <WorkspaceSwitcher />
+    return (
+      <main className="min-h-screen bg-black text-white p-10">
+  
+        <h1 className="text-5xl font-bold">
+          SynapseOS Dashboard
+        </h1>
+  
+        <div className="grid grid-cols-4 gap-6 mt-10">
+  
+          <div className="bg-zinc-900 p-6 rounded-2xl">
+            <h2 className="text-xl">AI Agents</h2>
+            <p className="text-4xl mt-4">38</p>
+          </div>
+  
+          <div className="bg-zinc-900 p-6 rounded-2xl">
+            <h2 className="text-xl">Workflows</h2>
+            <p className="text-4xl mt-4">245</p>
+        </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <AnalyticsChart />
-        <SystemMonitoring />
       </div>
 
-      <FileUpload />
-    </div>
+    </main>
   );
 }

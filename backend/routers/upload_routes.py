@@ -4,7 +4,8 @@ router = APIRouter()
 
 @router.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
+
     return {
         "filename": file.filename,
-        "analysis": "AI analyzed uploaded file successfully."
+        "status": "uploaded"
     }
