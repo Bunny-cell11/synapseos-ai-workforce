@@ -1,3 +1,7 @@
+from routes.auth import router as auth_router
+from routes.upload import router as upload_router
+from routes.analytics import router as analytics_router
+from database.db import Base, engine
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel

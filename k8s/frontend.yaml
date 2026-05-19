@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: synapseos-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: synapseos-frontend
+  template:
+    metadata:
+      labels:
+        app: synapseos-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: synapseos-frontend:latest
+          ports:
+            - containerPort: 3000
