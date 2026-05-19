@@ -8,7 +8,6 @@ import HeroSection from "./components/HeroSection";
 import Metrics from "./components/Metrics";
 import AgentStatus from "./components/AgentStatus";
 import Integrations from "./components/Integrations";
-import AICommandCenter from "./components/AICommandCenter";
 
 const API_URL =
   "https://synapseos-backend-4v9x.onrender.com";
@@ -23,32 +22,85 @@ interface Task {
 export default function Home() {
 
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [aiQuery, setAiQuery] = useState("");
+  const [aiResponse, setAiResponse] = useState("");
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
 
   const fetchTasks = async () => {
 
-    const response = await axios.get(
-      `${API_URL}/tasks`
-    );
+    try {
 
-    setTasks(response.data.tasks || []);
+      const response = await axios.get(
+        `${API_URL}/tasks`
+      );
+
+      setTasks(response.data.tasks || []);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
   };
 
   const startWorkflow = async () => {
 
-    setLoading(true);
+    try {
 
-    await axios.post(
-      `${API_URL}/start-project`,
-      {
-        goal:
-          "Build Enterprise AI Workforce System"
-      }
-    );
+      setLoading(true);
 
-    fetchTasks();
+      await axios.post(
+        `${API_URL}/start-project`,
+        {
+          goal:
+            "Build Enterprise AI Workforce System"
+        }
+      );
 
-    setLoading(false);
+      await fetchTasks();
+
+    } catch (error) {
+
+      console.log(error);
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  };
+
+  const executeAIQuery = async () => {
+
+    if (!aiQuery.trim()) return;
+
+    try {
+
+      setAiLoading(true);
+
+      const response = await axios.post(
+        `${API_URL}/ask-ai`,
+        {
+          question: aiQuery
+        }
+      );
+
+      setAiResponse(response.data.response);
+
+    } catch (error) {
+
+      console.log(error);
+
+      setAiResponse(
+        "Unable to connect to AI service."
+      );
+
+    } finally {
+
+      setAiLoading(false);
+
+    }
   };
 
   useEffect(() => {
@@ -60,7 +112,7 @@ export default function Home() {
 
       <Sidebar />
 
-      <div className="flex-1 p-10 space-y-8">
+      <div className="flex-1 p-10 space-y-8 overflow-y-auto">
 
         <HeroSection
           startWorkflow={startWorkflow}
@@ -73,38 +125,78 @@ export default function Home() {
 
           <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
 
-            <h2 className="text-3xl font-bold mb-6">
-              AI Workflow Tasks
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+
+              <h2 className="text-3xl font-bold">
+                AI Workflow Tasks
+              </h2>
+
+              <button
+                onClick={fetchTasks}
+                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition"
+              >
+                Refresh
+              </button>
+
+            </div>
 
             <div className="space-y-4">
 
-              {tasks.map((task) => (
+              {tasks.length > 0 ? (
 
-                <div
-                  key={task.id}
-                  className="bg-black border border-zinc-700 rounded-xl p-5"
-                >
+                tasks.map((task) => (
 
-                  <div className="flex justify-between">
+                  <div
+                    key={task.id}
+                    className="bg-black border border-zinc-700 rounded-xl p-5 hover:border-blue-500 transition"
+                  >
 
-                    <h3 className="text-xl font-semibold">
-                      {task.title}
-                    </h3>
+                    <div className="flex justify-between items-center">
 
-                    <span className="text-green-400">
-                      {task.status}
-                    </span>
+                      <h3 className="text-xl font-semibold">
+                        {task.title}
+                      </h3>
+
+                      <span
+                        className={`text-sm px-3 py-1 rounded-full ${
+                          task.status === "Completed"
+                            ? "bg-green-500/20 text-green-400"
+                            : task.status === "In Progress"
+                            ? "bg-yellow-500/20 text-yellow-400"
+                            : "bg-zinc-700 text-zinc-300"
+                        }`}
+                      >
+                        {task.status}
+                      </span>
+
+                    </div>
+
+                    <p className="text-zinc-400 mt-3">
+                      {task.assigned_agent}
+                    </p>
 
                   </div>
 
-                  <p className="text-zinc-400 mt-3">
-                    {task.assigned_agent}
+                ))
+
+              ) : (
+
+                <div className="bg-black border border-zinc-700 rounded-xl p-8 text-center">
+
+                  <p className="text-zinc-400 text-lg">
+                    No workflows running.
                   </p>
+
+                  <button
+                    onClick={startWorkflow}
+                    className="mt-4 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl transition"
+                  >
+                    Launch AI Workflow
+                  </button>
 
                 </div>
 
-              ))}
+              )}
 
             </div>
 
@@ -120,7 +212,62 @@ export default function Home() {
 
         </div>
 
-        <AICommandCenter />
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+
+          <h2 className="text-3xl font-bold mb-6">
+            AI Operations Center
+          </h2>
+
+          <textarea
+            value={aiQuery}
+            onChange={(e) =>
+              setAiQuery(e.target.value)
+            }
+            placeholder="Ask SynapseOS AI about workflows, DevOps, automation, AI agents, analytics..."
+            className="w-full h-40 bg-black border border-zinc-700 rounded-xl p-4 text-white outline-none focus:border-blue-500 resize-none"
+          />
+
+          <div className="flex gap-4 mt-4">
+
+            <button
+              onClick={executeAIQuery}
+              disabled={aiLoading}
+              className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl transition disabled:opacity-50"
+            >
+              {aiLoading
+                ? "Processing..."
+                : "Execute AI Query"}
+            </button>
+
+            <button
+              onClick={() => {
+                setAiQuery("");
+                setAiResponse("");
+              }}
+              className="bg-zinc-800 hover:bg-zinc-700 px-6 py-3 rounded-xl transition"
+            >
+              Clear
+            </button>
+
+          </div>
+
+          {aiResponse && (
+
+            <div className="mt-6 bg-black border border-zinc-700 rounded-xl p-5">
+
+              <h3 className="text-xl font-semibold mb-3 text-blue-400">
+                SynapseOS AI Response
+              </h3>
+
+              <p className="text-zinc-300 leading-8 whitespace-pre-wrap">
+                {aiResponse}
+              </p>
+
+            </div>
+
+          )}
+
+        </div>
 
       </div>
 
