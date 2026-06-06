@@ -4,6 +4,14 @@ def save_memory(text):
 
     memory_store.append(text)
 
-def get_memory():
+def retrieve_memory(query):
 
-    return memory_store
+    results = []
+
+    for item in memory_store:
+
+        if query.lower() in item.lower():
+
+            results.append(item)
+
+    return results

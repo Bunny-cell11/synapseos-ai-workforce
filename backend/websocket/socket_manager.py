@@ -28,13 +28,32 @@ class ConnectionManager:
 
     async def broadcast(
         self,
-        message: str
+        message: dict
     ):
 
         for connection in self.active_connections:
 
-            await connection.send_text(
+            await connection.send_json(
                 message
             )
+
+manager = ConnectionManager()
+class ConnectionManager:
+
+    def __init__(self):
+
+        self.active = []
+
+    async def connect(self, websocket):
+
+        await websocket.accept()
+
+        self.active.append(websocket)
+
+    async def broadcast(self, message):
+
+        for connection in self.active:
+
+            await connection.send_json(message)
 
 manager = ConnectionManager()

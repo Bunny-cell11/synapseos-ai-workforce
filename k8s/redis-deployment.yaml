@@ -3,29 +3,29 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: synapseos-frontend
+  name: redis
 
 spec:
 
-  replicas: 2
+  replicas: 1
 
   selector:
     matchLabels:
-      app: frontend
+      app: redis
 
   template:
 
     metadata:
       labels:
-        app: frontend
+        app: redis
 
     spec:
 
       containers:
 
-      - name: frontend
+      - name: redis
 
-        image: synapseos-frontend
+        image: redis
 
         ports:
-        - containerPort: 3000
+        - containerPort: 6379

@@ -1,11 +1,18 @@
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
-from sqlalchemy import Text
-from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 
-from database.database import Base
+from database import Base
+
+class Organization(Base):
+
+    __tablename__ = "organizations"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
 
 class User(Base):
 
@@ -13,14 +20,12 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     email = Column(String, unique=True)
-    password = Column(String)
+    role = Column(String)
 
-class Organization(Base):
-
-    __tablename__ = "organizations"
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
+    organization_id = Column(
+        Integer,
+        ForeignKey("organizations.id")
+    )
 
 class Workflow(Base):
 
@@ -28,9 +33,7 @@ class Workflow(Base):
 
     id = Column(Integer, primary_key=True)
 
-    title = Column(String)
-
-    assigned_agent = Column(String)
+    name = Column(String)
 
     status = Column(String)
 
@@ -39,22 +42,19 @@ class Workflow(Base):
         ForeignKey("organizations.id")
     )
 
-class AIConversation(Base):
+class WorkflowTask(Base):
 
-    __tablename__ = "ai_conversations"
-
-    id = Column(Integer, primary_key=True)
-
-    question = Column(Text)
-
-    response = Column(Text)
-
-class UploadedFile(Base):
-
-    __tablename__ = "uploaded_files"
+    __tablename__ = "workflow_tasks"
 
     id = Column(Integer, primary_key=True)
 
-    filename = Column(String)
+    workflow_id = Column(
+        Integer,
+        ForeignKey("workflows.id")
+    )
 
-    summary = Column(Text)
+    agent = Column(String)
+
+    task = Column(String)
+
+    status = Column(String)

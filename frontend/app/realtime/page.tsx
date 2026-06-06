@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 export default function RealtimePage() {
 
-  const [message, setMessage] =
-    useState("");
+  const [messages, setMessages] =
+    useState<string[]>([]);
 
   useEffect(() => {
 
@@ -15,7 +15,10 @@ export default function RealtimePage() {
 
     socket.onmessage = (event) => {
 
-      setMessage(event.data);
+      setMessages((prev) => [
+        ...prev,
+        event.data
+      ]);
 
     };
 
@@ -26,12 +29,23 @@ export default function RealtimePage() {
     <main className="bg-black text-white min-h-screen p-10">
 
       <h1 className="text-4xl font-bold mb-10">
-        Real-Time AI Workflows
+        Real-Time AI Execution
       </h1>
 
-      <div className="bg-zinc-900 p-8 rounded-2xl">
+      <div className="space-y-4">
 
-        <p>{message}</p>
+        {messages.map((msg, index) => (
+
+          <div
+            key={index}
+            className="bg-zinc-900 border border-zinc-700 rounded-xl p-5"
+          >
+
+            {msg}
+
+          </div>
+
+        ))}
 
       </div>
 

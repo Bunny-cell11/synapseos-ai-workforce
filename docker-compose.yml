@@ -1,50 +1,135 @@
-version: "3.9"
-
 services:
-
-  postgres:
-
-    image: postgres:15
-
-    container_name: synapseos-postgres
-
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin123
-      POSTGRES_DB: synapseos
-
-    ports:
-      - "5432:5432"
-
-  redis:
-
-    image: redis:latest
-
-    container_name: synapseos-redis
-
-    ports:
-      - "6379:6379"
 
   backend:
 
-    build: ./backend
+    build:
+      context: ./backend
+
+    container_name: synapseos-backend
 
     ports:
       - "8000:8000"
 
-    environment:
-      DATABASE_URL: postgresql://admin:admin123@postgres:5432/synapseos
+    volumes:
+      - ./backend:/app
 
     depends_on:
       - postgres
       - redis
 
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/synapseos
+      REDIS_URL: redis://redis:6379/0
+
+    command: >
+      uvicorn main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+
   frontend:
 
-    build: ./frontend
+    build:
+      context: ./frontend
+
+    container_name: synapseos-frontend
 
     ports:
       - "3000:3000"
 
+    volumes:
+      - ./frontend:/app
+
     depends_on:
       - backend
+
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+
+    command: npm run dev
+
+  postgres:
+
+    image: postgres:16
+
+    container_name: synapseos-postgres
+
+    restart: always
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: synapseos
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+
+    image: redis:7
+
+    container_name: synapseos-redis
+
+    restart: always
+
+    ports:
+      - "6379:6379"
+
+  celery:
+
+    build:
+      context: ./backend
+
+    container_name: synapseos-celery
+
+    depends_on:
+      - redis
+      - backend
+
+    volumes:
+      - ./backend:/app
+
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/synapseos
+      REDIS_URL: redis://redis:6379/0
+
+    command: >
+      celery -A celery_worker.celery worker
+      --loglevel=info
+
+  prometheus:
+
+    image: prom/prometheus
+
+    container_name: synapseos-prometheus
+
+    restart: always
+
+    ports:
+      - "9090:9090"
+
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+
+    image: grafana/grafana
+
+    container_name: synapseos-grafana
+
+    restart: always
+
+    ports:
+      - "3001:3000"
+
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+
+  postgres_data:
+
+  grafana-storage:
