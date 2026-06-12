@@ -2,7 +2,7 @@ from celery import Celery
 
 celery = Celery(
     "synapseos",
-    broker="redis://redis:6379/0",
+    broker="redis://127.0.0.1:6379/0",
     backend="redis://redis:6379/0"
 )
 
