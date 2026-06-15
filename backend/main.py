@@ -31,6 +31,8 @@ from database.models import (
 
 load_dotenv()
 
+print("RENDER DEPLOY TEST - COMMIT 1fbfae0")
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
