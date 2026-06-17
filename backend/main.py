@@ -7,7 +7,7 @@ from fastapi import File
 from dotenv import load_dotenv
 
 from sqlalchemy.orm import Session
-
+from sqlalchemy import text
 from ai_agents.orchestrator import (
     execute_ai_workflow,
     execute_orchestration
@@ -262,4 +262,20 @@ def workflow_graph():
                 "target": "3"
             }
         ]
+    }
+@app.get("/debug-workflows")
+def debug_workflows():
+
+    db = SessionLocal()
+
+    result = db.execute(
+        text("""
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name='workflows'
+        """)
+    )
+
+    return {
+        "columns": [row[0] for row in result]
     }
