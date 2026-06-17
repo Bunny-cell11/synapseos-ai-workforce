@@ -279,3 +279,11 @@ def debug_workflows():
     return {
         "columns": [row[0] for row in result]
     }
+@app.get("/recreate-db")
+def recreate_db():
+
+    from database.database import Base, engine
+
+    Base.metadata.create_all(bind=engine)
+
+    return {"message": "tables recreated"}
