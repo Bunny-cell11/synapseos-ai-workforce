@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import WebSocket
 from fastapi import UploadFile
 from fastapi import File
+import os
 
 from dotenv import load_dotenv
 
@@ -287,3 +288,9 @@ def recreate_db():
     Base.metadata.create_all(bind=engine)
 
     return {"message": "tables recreated"}
+
+@app.get("/debug-db")
+def debug_db():
+    return {
+        "database_url": os.getenv("DATABASE_URL")
+    }
