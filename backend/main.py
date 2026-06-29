@@ -7,7 +7,6 @@ import os
 
 from dotenv import load_dotenv
 
-from sqlalchemy import text
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from ai_agents.orchestrator import (
@@ -69,21 +68,6 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 
-@app.get("/debug-workflows")
-def debug_workflows():
-    db = SessionLocal()
-    try:
-        result = db.execute(text("""
-            SELECT column_name
-            FROM information_schema.columns
-            WHERE table_name='workflows'
-            ORDER BY ordinal_position;
-        """))
-        return {
-            "columns": [row[0] for row in result]
-        }
-    finally:
-        db.close()
 
 @app.get("/")
 def home():
